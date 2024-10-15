@@ -1,0 +1,9 @@
+﻿  chat_server_main.cpp
+B:\Fanshawe\network and programming\Projects\INFO6016_Project01_Vasili_Enes\Chat_App\ChatServer\buffer.h(44,17): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  (compiling source file 'chat_server_main.cpp')
+  
+B:\Fanshawe\network and programming\Projects\INFO6016_Project01_Vasili_Enes\Chat_App\ChatServer\buffer.h(54,21): warning C4018: '<': signed/unsigned mismatch
+  (compiling source file 'chat_server_main.cpp')
+  
+  LINK : B:\Fanshawe\network and programming\Projects\INFO6016_Project01_Vasili_Enes\Chat_App\x64\Debug\ChatServer.exe not found or not built by the last incremental link; performing full link
+  ChatServer.vcxproj -> B:\Fanshawe\network and programming\Projects\INFO6016_Project01_Vasili_Enes\Chat_App\x64\Debug\ChatServer.exe
