@@ -19,8 +19,16 @@ public:
 
 	~Buffer() {}
 
+	void Grow(int newSize) {
+		if (newSize > m_BufferData.size())
+		{
+			m_BufferData.resize(newSize);
+		}
+	}
+
 	void WriteUInt32LE(uint32_t value)
 	{
+		Grow(m_WriteIndex + sizeof(uint32_t));
 		m_BufferData[m_WriteIndex++] = value;
 		m_BufferData[m_WriteIndex++] = value >> 8;
 		m_BufferData[m_WriteIndex++] = value >> 16;
@@ -42,6 +50,8 @@ public:
 	void WriteString(const std::string& str)
 	{
 		int strLength = str.length();
+
+		Grow(m_WriteIndex + strLength);
 		for (int i = 0; i < strLength; i++)
 		{
 			m_BufferData[m_WriteIndex++] = str[i];
@@ -50,6 +60,7 @@ public:
 
 	std::string ReadString(uint32_t length)
 	{
+
 		std::string str;
 		for (int i = 0; i < length; i++)
 		{

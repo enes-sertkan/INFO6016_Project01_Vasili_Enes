@@ -1,10 +1,9 @@
 ﻿  chat_client_main.cpp
-B:\Fanshawe\network and programming\Projects\INFO6016_Project01_Vasili_Enes\Chat_App\ChatClient\buffer.h(44,17): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+B:\Fanshawe\network and programming\Projects\Project 1\INFO6016_Project01_Vasili_Enes\Chat_App\ChatClient\buffer.h(52,17): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
   (compiling source file 'chat_client_main.cpp')
   
-B:\Fanshawe\network and programming\Projects\INFO6016_Project01_Vasili_Enes\Chat_App\ChatClient\buffer.h(54,21): warning C4018: '<': signed/unsigned mismatch
+B:\Fanshawe\network and programming\Projects\Project 1\INFO6016_Project01_Vasili_Enes\Chat_App\ChatClient\buffer.h(65,21): warning C4018: '<': signed/unsigned mismatch
   (compiling source file 'chat_client_main.cpp')
   
-B:\Fanshawe\network and programming\Projects\INFO6016_Project01_Vasili_Enes\Chat_App\ChatClient\chat_client_main.cpp(154,49): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
-  LINK : B:\Fanshawe\network and programming\Projects\INFO6016_Project01_Vasili_Enes\Chat_App\x64\Debug\ChatClient.exe not found or not built by the last incremental link; performing full link
-  ChatClient.vcxproj -> B:\Fanshawe\network and programming\Projects\INFO6016_Project01_Vasili_Enes\Chat_App\x64\Debug\ChatClient.exe
+B:\Fanshawe\network and programming\Projects\Project 1\INFO6016_Project01_Vasili_Enes\Chat_App\ChatClient\chat_client_main.cpp(154,49): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
+  ChatClient.vcxproj -> B:\Fanshawe\network and programming\Projects\Project 1\INFO6016_Project01_Vasili_Enes\Chat_App\x64\Debug\ChatClient.exe
