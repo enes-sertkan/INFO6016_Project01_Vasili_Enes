@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <thread>
 #include <iostream>
-
+#include <sstream>>
 #include "string"
 #include "buffer.h"
 
@@ -29,6 +29,10 @@ struct ChatMessage
 	PacketHeader header;
 	uint32_t messageLength;
 	std::string message;
+	uint32_t roomLength;
+	std::string room;
+	uint32_t nameLength;
+	std::string userName;
 };
 
 std::atomic<bool> isRunning(true);
@@ -51,8 +55,11 @@ void receiveMessage(SOCKET socket)
 				// handle the message
 				uint32_t messageLength = buffer.ReadUInt32LE();
 				std::string msg = buffer.ReadString(messageLength);
-
-				std::cout << msg << "\n";
+				uint32_t roomLength = buffer.ReadUInt32LE();
+				std::string room = buffer.ReadString(roomLength);
+				uint32_t nameLength = buffer.ReadUInt32LE();
+				std::string userName = buffer.ReadString(nameLength);
+				std::cout <<"["<<room<<"] "<< userName<<":" << msg << "\n";
 			}
 		}
 		else if (result == 0)
@@ -72,6 +79,8 @@ int main(int arg, char** argv)
 	// Initiliaze Winsock
 	WSADATA wsaData;
 	int result;
+
+	std::string currentRoom = "main";
 
 	// Set version 2.2 with MAKEWORD(2,2)
 	result = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -137,44 +146,79 @@ int main(int arg, char** argv)
 
 	std::thread recieveThread(receiveMessage, serverSocket);
 
-	while (isRunning) 
+	while (isRunning)
 	{
 		std::string input;
+		std::cout << "\n[" + currentRoom + "] ";
 		std::getline(std::cin, input);
 
-		if (input == "/exit") 
+		if (input == "/exit")
 		{
 			std::cout << "Exiting the chat..\n";
 			isRunning.store(false, std::memory_order_relaxed);
 			break;
 		}
+		if (input[0] == '/')
+		{
+			std::stringstream msgStream(input);
+			std::string token;
 
-		ChatMessage message;
-		message.message = "[" + name + "]: " + input;
-		message.messageLength = message.message.length();
-		message.header.messageType = 1;
-		message.header.packetSize = message.messageLength + sizeof(message.messageLength) + sizeof(message.header.messageType) + sizeof(message.header.packetSize);
+			msgStream >> token;
 
-		const int bufSize = 512;
-		Buffer buffer(bufSize);
+			if (token == "/join")
+			{
+				msgStream >> token;
+				currentRoom = token;
+			}
 
-		buffer.WriteUInt32LE(message.header.packetSize); 
-		buffer.WriteUInt32LE(message.header.messageType);
-		buffer.WriteUInt32LE(message.messageLength); 
-		buffer.WriteString(message.message); 
+			if (token == "/switch")
+			{
+				std::cout << "switched";
+				msgStream >> token;
+				currentRoom = token;
+			}
 
-		send(serverSocket, (const char*)(&buffer.m_BufferData[0]), message.header.packetSize, 0);
-		std::cout << message.message << "\n";
+		}
+
+
+			ChatMessage message;
+			message.message = input;//"[" + name + "]: " + input;
+			message.messageLength = message.message.length();
+			message.header.messageType = 1;
+			message.header.packetSize = message.messageLength + sizeof(message.messageLength) + message.roomLength + sizeof(message.roomLength) + message.nameLength + sizeof(message.nameLength) + sizeof(message.header.messageType) + sizeof(message.header.packetSize);
+			message.roomLength = currentRoom.length();
+			message.room = currentRoom;
+			message.nameLength = name.length();
+			message.userName = name;
+
+			const int bufSize = 512;
+			Buffer buffer(bufSize);
+
+			buffer.WriteUInt32LE(message.header.packetSize);
+			buffer.WriteUInt32LE(message.header.messageType);
+			buffer.WriteUInt32LE(message.messageLength);
+			buffer.WriteString(message.message);
+			buffer.WriteUInt32LE(message.roomLength);
+			buffer.WriteString(message.room);
+			buffer.WriteUInt32LE(message.nameLength);
+			buffer.WriteString(message.userName);
+
+
+			send(serverSocket, (const char*)(&buffer.m_BufferData[0]), message.header.packetSize, 0);
+			//std::cout << message.message << "\n";
+			//std::cout << "\n[" + currentRoom + "] ";
+		}
+
+
+
+		freeaddrinfo(info);
+
+		shutdown(serverSocket, SD_BOTH);
+		closesocket(serverSocket);
+
+		isRunning = false;
+
+		WSACleanup();
+
+		return 0;
 	}
-
-	freeaddrinfo(info);
-
-	shutdown(serverSocket, SD_BOTH);
-	closesocket(serverSocket);
-
-	isRunning = false;
-
-	WSACleanup();
-
-	return 0;
-}

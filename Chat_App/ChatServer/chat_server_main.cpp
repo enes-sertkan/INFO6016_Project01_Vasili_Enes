@@ -11,11 +11,30 @@
 #include <vector>
 #include <string>
 #include "buffer.h"
+#include <iostream>
+#include <map>
+#include <sstream>
 
 // Need to link Ws2_32.lib
 #pragma comment(lib, "Ws2_32.lib")
 
 #define DEFAULT_PORT "8412"
+
+
+
+struct User
+{
+	SOCKET socket;
+	unsigned int ID;
+
+};
+
+
+struct Room
+{
+	std::string name;
+	std::vector<User*> users;
+};
 
 struct PacketHeader
 {
@@ -28,7 +47,68 @@ struct ChatMessage
 	PacketHeader header;
 	uint32_t messageLength;
 	std::string message;
+	uint32_t roomLength;
+	std::string room;
+	uint32_t nameLength;
+	std::string userName;
 };
+
+
+
+std::vector<User*> users;
+std::map<std::string, Room*> roomMap;
+
+std::vector<User*> GetAllUsersInRoom(std::string roomName)
+{
+	auto it = roomMap.find(roomName);  //Don't kill me for using auto, please. Spare my life. I can change it, but this format is so ugly.
+	if (it != roomMap.end())
+	{
+		return it->second->users;
+	}
+}
+
+void PrepareMain()
+{
+	Room* newRoom = new Room();
+	newRoom->name = "main";
+	
+	roomMap.insert(std::make_pair(newRoom->name, newRoom));
+	std::cout << "main created." << std::endl;
+}
+
+void AddUserToMain(User* user)
+{
+	roomMap["main"]->users.push_back(user);
+}
+
+void SendMessageToSocket(std::string msg, SOCKET outSocket)
+{
+	const int bufSize = 512;
+	Buffer buffer(bufSize);
+
+	ChatMessage message;
+	message.message = msg;//"[" + name + "]: " + input;
+	message.messageLength = message.message.length();
+	message.header.messageType = 1;
+	
+	message.roomLength = 4;
+	message.room = "main";
+	message.nameLength = 6;
+	message.userName = "Admin";
+	message.header.packetSize = message.messageLength + sizeof(message.messageLength) + message.roomLength + sizeof(message.roomLength) + message.nameLength + sizeof(message.nameLength) + sizeof(message.header.messageType) + sizeof(message.header.packetSize);
+
+	buffer.WriteUInt32LE(message.header.packetSize);
+	buffer.WriteUInt32LE(message.header.messageType);
+	buffer.WriteUInt32LE(message.messageLength);
+	buffer.WriteString(message.message);
+	buffer.WriteUInt32LE(message.roomLength);
+	buffer.WriteString(message.room);
+	buffer.WriteUInt32LE(message.nameLength);
+	buffer.WriteString(message.userName);
+
+	send(outSocket, (const char*)(&buffer.m_BufferData[0]), message.header.packetSize, 0);
+
+}
 
 
 int main(int arg, char** argv)
@@ -104,7 +184,7 @@ int main(int arg, char** argv)
 	printf("listen was successful!\n");
 
 
-	std::vector<SOCKET> activeConnections;
+	//std::vector<SOCKET> activeConnections;
 
 	FD_SET socketsReadyForReading;		// list of all the clients ready to ready
 	FD_ZERO(&socketsReadyForReading);
@@ -120,9 +200,9 @@ int main(int arg, char** argv)
 
 		FD_SET(listenSocket, &socketsReadyForReading);
 
-		for (int i = 0; i < activeConnections.size(); i++)
+		for (int i = 0; i < users.size(); i++)
 		{
-			FD_SET(activeConnections[i], &socketsReadyForReading);
+			FD_SET(users[i]->socket, &socketsReadyForReading);
 		}
 
 		int count = select(0, &socketsReadyForReading, NULL, NULL, &tv);
@@ -138,9 +218,9 @@ int main(int arg, char** argv)
 			continue;
 		}
 
-		for (int i = 0; i < activeConnections.size(); i++)
+		for (int i = 0; i < users.size(); i++)
 		{
-			SOCKET socket = activeConnections[i];
+			SOCKET socket = users[i]->socket;
 
 			if (FD_ISSET(socket, &socketsReadyForReading))
 			{
@@ -153,7 +233,7 @@ int main(int arg, char** argv)
 				{
 					printf("recv failed with error %d\n", WSAGetLastError());
 					closesocket(socket);
-					activeConnections.erase(activeConnections.begin() + i);
+					//activeConnections.erase(activeConnections.begin() + i); //NO PROPER CLEANING AFTER ERROR
 					i--;
 					continue;
 				}
@@ -161,7 +241,7 @@ int main(int arg, char** argv)
 				{
 					printf("Client disconnect");
 					closesocket(socket);
-					activeConnections.erase(activeConnections.begin() + i);
+					//activeConnections.erase(activeConnections.begin() + i);
 					i--;
 					continue;
 				}
@@ -173,16 +253,89 @@ int main(int arg, char** argv)
 				{
 					uint32_t messageLength = buffer.ReadUInt32LE();
 					std::string msg = buffer.ReadString(messageLength);
+					uint32_t roomLength = buffer.ReadUInt32LE();
+					std::string room = buffer.ReadString(roomLength);
+					uint32_t nameLength = buffer.ReadUInt32LE();
+					std::string userName = buffer.ReadString(nameLength);
 
 					printf("PacketSize:%d\nMessageType:%d\nMessageLength:%d\nMessage:%s\n", packetSize, messageType, messageLength, msg.c_str());
 
-
-					for (int j = 0; j < activeConnections.size(); j++)
+					if (msg[0] == '/')
 					{
-						SOCKET outSocket = activeConnections[j];
+						std::stringstream msgStream(msg);
+						std::string token;
+
+						msgStream>>token;
+
+						if (token == "/join")
+						{
+							msgStream >> token;
+							std::string roomName = token;
+							
+
+							auto it = roomMap.find(roomName);  //Don't kill me for using auto, please. Spare my life. I can change it, but this format is so ugly.
+							if (it != roomMap.end())
+							{
+								Room* currentRoom = it->second;
+								currentRoom->users.push_back(users[i]);
+								std::cout << "User joined room: " << roomName << std::endl;
+
+								SendMessageToSocket("You joined room called " + roomName + ".", socket);
+							}
+							else
+							{
+								Room* newRoom = new Room();
+								newRoom->name = roomName;
+								newRoom->users.push_back(users[i]);
+								roomMap.insert(std::make_pair(newRoom->name, newRoom));
+								std::cout << "User created room: " << roomName<<std::endl;
+
+								SendMessageToSocket("You created new room called " + newRoom->name + ".", socket);
+							}
+						}
+
+						if (token == "/send")
+						{
+							msgStream >> token;
+							std::string roomName = token;
+							msgStream >> token;
+							std::string message = token;
+							msg = message;
+
+							std::vector<User*> roomUsers = GetAllUsersInRoom(roomName);
+
+							for (int j = 0; j < roomUsers.size(); j++)
+							{
+								SOCKET outSocket = roomUsers[j]->socket;
+
+								if (outSocket != listenSocket && outSocket != socket)
+								{
+
+									std::cout << "Data send to user #" << j;
+									send(outSocket, (const char*)(&buffer.m_BufferData[0]), packetSize, 0);
+
+								}
+							}
+
+						}
+
+					
+					}
+					
+
+					
+					std::vector<User*> roomUsers;
+					if (room == "main") roomUsers = users;
+						else roomUsers= GetAllUsersInRoom(room);
+
+					for (int j = 0; j < roomUsers.size(); j++)
+					{
+						SOCKET outSocket = roomUsers[j]->socket;
 
 						if (outSocket != listenSocket && outSocket != socket)
 						{
+
+							std::cout << "Data send to user #" << j;
 							send(outSocket, (const char*)(&buffer.m_BufferData[0]), packetSize, 0);
 						}
 					}
@@ -205,8 +358,13 @@ int main(int arg, char** argv)
 				}
 				else
 				{
-					activeConnections.push_back(newConnection);
-					FD_SET(newConnection, &activeConnections);
+					User* newUser = new User();
+					newUser->ID = 123;
+					newUser->socket = newConnection;
+					users.push_back(newUser);
+					
+					//AddUserToMain(newUser);
+
 					FD_CLR(listenSocket, &socketsReadyForReading);
 
 					printf("Client connect with socket: %d\n", (int)newConnection);
@@ -218,12 +376,15 @@ int main(int arg, char** argv)
 	freeaddrinfo(info);
 	closesocket(listenSocket);
 
-	for (int i = 0; i < activeConnections.size(); i++)
+	for (int i = 0; i < users.size(); i++)
 	{
-		closesocket(activeConnections[i]);
+		closesocket(users[i]->socket);
 	}
 
 	WSACleanup();
 
 	return 0;
 }
+
+
+

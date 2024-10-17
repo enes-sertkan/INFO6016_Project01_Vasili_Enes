@@ -37,6 +37,7 @@ public:
 
 	uint32_t ReadUInt32LE()
 	{
+		Grow(m_ReadIndex + sizeof(uint32_t));
 		uint32_t value = 0;
 
 		value |= m_BufferData[m_ReadIndex++];
@@ -62,10 +63,7 @@ public:
 	{
 
 		std::string str;
-
-	
-		Grow(m_ReadIndex + length);
-
+		Grow(m_ReadIndex + str.length());
 		for (int i = 0; i < length; i++)
 		{
 			str.push_back(m_BufferData[m_ReadIndex++]);
