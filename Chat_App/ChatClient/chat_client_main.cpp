@@ -38,7 +38,7 @@ struct ChatMessage
 std::atomic<bool> isRunning(true);
 std::string currentRoom = "main";
 std::string name;
-
+struct addrinfo* info = nullptr;
 
 void receiveMessage(SOCKET socket)
 {
@@ -80,13 +80,17 @@ void receiveMessage(SOCKET socket)
 	}
 }
 
-int main(int arg, char** argv)
+
+
+
+
+SOCKET PrepareClient()
 {
 	// Initiliaze Winsock
 	WSADATA wsaData;
 	int result;
 
-	
+
 
 	// Set version 2.2 with MAKEWORD(2,2)
 	result = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -98,7 +102,7 @@ int main(int arg, char** argv)
 
 	printf("WSAStartup successfully!\n");
 
-	struct addrinfo* info = nullptr;
+	
 	struct addrinfo hints;
 	ZeroMemory(&hints, sizeof(hints));  // ensure we dont have garbage data
 	hints.ai_family = AF_INET;			// IPv4
@@ -130,7 +134,7 @@ int main(int arg, char** argv)
 
 
 	std::cout << "Enter your name: ";
-	
+
 	std::getline(std::cin, name);
 
 	// Connect
@@ -146,6 +150,12 @@ int main(int arg, char** argv)
 
 	printf("Connect to the server successfully!\n");
 
+	return serverSocket;
+}
+
+int main(int arg, char** argv)
+{
+	SOCKET serverSocket = PrepareClient();
 
 	std::cout << "Conected to room as " << name << "...\n";
 	std::cout << "Type '/exit' to leave the chat.\n";
