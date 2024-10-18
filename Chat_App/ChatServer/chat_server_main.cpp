@@ -25,6 +25,7 @@
 struct User
 {
 	SOCKET socket;
+	std::string name;
 	unsigned int ID;
 
 };
@@ -33,6 +34,7 @@ struct User
 struct Room
 {
 	std::string name;
+	User* creator;
 	std::vector<User*> users;
 };
 
@@ -110,6 +112,22 @@ void SendMessageToSocket(std::string msg, SOCKET outSocket)
 
 }
 
+User* GetUserBySocket(SOCKET socket)
+{
+	std::cout << socket;
+	for(int i = 0; i<users.size(); i++ )
+	{
+		if (users[i]->socket == socket)
+		{
+			 
+			return users[i];
+		}
+		
+	}
+	return nullptr;
+
+
+}
 
 int main(int arg, char** argv)
 {
@@ -258,6 +276,9 @@ int main(int arg, char** argv)
 					uint32_t nameLength = buffer.ReadUInt32LE();
 					std::string userName = buffer.ReadString(nameLength);
 
+					User* user = nullptr;
+					user = GetUserBySocket(socket);
+					user->name = userName;
 					printf("PacketSize:%d\nMessageType:%d\nMessageLength:%d\nMessage:%s\n", packetSize, messageType, messageLength, msg.c_str());
 
 					if (msg[0] == '/')
@@ -280,13 +301,14 @@ int main(int arg, char** argv)
 								currentRoom->users.push_back(users[i]);
 								std::cout << "User joined room: " << roomName << std::endl;
 
-								SendMessageToSocket("You joined room called " + roomName + ".", socket);
+								SendMessageToSocket("You joined room called " + roomName + ". It was created by " +currentRoom->creator->name, socket); //socket == User we got message from right now
 							}
 							else
 							{
 								Room* newRoom = new Room();
 								newRoom->name = roomName;
 								newRoom->users.push_back(users[i]);
+								newRoom->creator = users[i];
 								roomMap.insert(std::make_pair(newRoom->name, newRoom));
 								std::cout << "User created room: " << roomName<<std::endl;
 
@@ -319,7 +341,28 @@ int main(int arg, char** argv)
 
 						}
 
-					
+						if (token == "/quit")
+						{
+							//remove User* from users in Room* in roommap<std::string, Room*>
+
+						}
+
+						if (token == "/rooms")
+						{
+							//Send a list of rooms, like:
+							//FUN
+							//room2
+							//helpmeStudyRoom
+						}
+
+						if (token == "/help")
+						{
+
+							SendMessageToSocket("Write /roooms to roooms", socket);
+							//LIST OF COMMANDS like this and like /rooms
+						}
+
+
 					}
 					
 
@@ -361,6 +404,7 @@ int main(int arg, char** argv)
 					User* newUser = new User();
 					newUser->ID = 123;
 					newUser->socket = newConnection;
+				
 					users.push_back(newUser);
 					
 					//AddUserToMain(newUser);

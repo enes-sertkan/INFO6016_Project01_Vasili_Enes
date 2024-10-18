@@ -59,7 +59,10 @@ void receiveMessage(SOCKET socket)
 				std::string room = buffer.ReadString(roomLength);
 				uint32_t nameLength = buffer.ReadUInt32LE();
 				std::string userName = buffer.ReadString(nameLength);
+
+				printf("\33[2K\r");
 				std::cout <<"["<<room<<"] "<< userName<<":" << msg << "\n";
+				//std::cout << "[" << room << "] ";
 			}
 		}
 		else if (result == 0)
@@ -73,14 +76,14 @@ void receiveMessage(SOCKET socket)
 		}
 	}
 }
-
+std::string currentRoom = "main";
 int main(int arg, char** argv)
 {
 	// Initiliaze Winsock
 	WSADATA wsaData;
 	int result;
 
-	std::string currentRoom = "main";
+	
 
 	// Set version 2.2 with MAKEWORD(2,2)
 	result = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -206,7 +209,7 @@ int main(int arg, char** argv)
 
 			send(serverSocket, (const char*)(&buffer.m_BufferData[0]), message.header.packetSize, 0);
 			//std::cout << message.message << "\n";
-			//std::cout << "\n[" + currentRoom + "] ";
+			std::cout << "\n[" + currentRoom + "] ";
 		}
 
 

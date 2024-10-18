@@ -1,1 +1,15 @@
-﻿  ChatClient.vcxproj -> D:\Fork\INFO6016_Project01_Vasili_Enes\Chat_App\x64\Debug\ChatClient.exe
+﻿  chat_client_main.cpp
+D:\Fork\INFO6016_Project01_Vasili_Enes\Chat_App\ChatClient\chat_client_main.cpp(12,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+D:\Fork\INFO6016_Project01_Vasili_Enes\Chat_App\ChatClient\buffer.h(53,17): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  (compiling source file 'chat_client_main.cpp')
+  
+D:\Fork\INFO6016_Project01_Vasili_Enes\Chat_App\ChatClient\buffer.h(66,20): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+  (compiling source file 'chat_client_main.cpp')
+  
+D:\Fork\INFO6016_Project01_Vasili_Enes\Chat_App\ChatClient\buffer.h(67,21): warning C4018: '<': signed/unsigned mismatch
+  (compiling source file 'chat_client_main.cpp')
+  
+D:\Fork\INFO6016_Project01_Vasili_Enes\Chat_App\ChatClient\chat_client_main.cpp(189,50): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
+D:\Fork\INFO6016_Project01_Vasili_Enes\Chat_App\ChatClient\chat_client_main.cpp(192,43): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
+D:\Fork\INFO6016_Project01_Vasili_Enes\Chat_App\ChatClient\chat_client_main.cpp(194,36): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
+  ChatClient.vcxproj -> D:\Fork\INFO6016_Project01_Vasili_Enes\Chat_App\x64\Debug\ChatClient.exe
