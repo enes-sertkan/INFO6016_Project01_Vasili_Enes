@@ -68,6 +68,7 @@ std::vector<User*> GetAllUsersInRoom(std::string roomName)
 	{
 		return it->second->users;
 	}
+	return std::vector<User*>();
 }
 
 void PrepareMain()
@@ -343,30 +344,7 @@ int main(int arg, char** argv)
 							}
 						}
 
-						if (token == "/send")
-						{
-							msgStream >> token;
-							std::string roomName = token;
-							msgStream >> token;
-							std::string message = token;
-							msg = message;
-
-							std::vector<User*> roomUsers = GetAllUsersInRoom(roomName);
-
-							for (int j = 0; j < roomUsers.size(); j++)
-							{
-								SOCKET outSocket = roomUsers[j]->socket;
-
-								if (outSocket != listenSocket && outSocket != socket)
-								{
-
-									std::cout << "Data send to user #" << j;
-									send(outSocket, (const char*)(&buffer.m_BufferData[0]), packetSize, 0);
-
-								}
-							}
-
-						}
+					
 
 						if (token == "/leave")
 						{
@@ -400,8 +378,8 @@ int main(int arg, char** argv)
 								"Available commands:\n"
 								"/rooms - List available rooms\n"
 								"/join <room> - Create or join a room\n"
-								"/leave - Leave the current room\n"
-								"/send <room> <message> - Send a message to a room\n"
+								"/leave <room> - Leave the current room\n"
+								"/switch <room> - switch room you are writing to\n"
 								"/exit - Close the app\n";
 
 							SendMessageToSocket(helpMessage, socket);

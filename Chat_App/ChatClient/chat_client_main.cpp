@@ -148,6 +148,10 @@ SOCKET PrepareClient()
 		return 1;
 	}
 
+	
+
+	system("cls");
+
 	printf("Connect to the server successfully!\n");
 
 	return serverSocket;
@@ -157,8 +161,8 @@ int main(int arg, char** argv)
 {
 	SOCKET serverSocket = PrepareClient();
 
-	std::cout << "Conected to room as " << name << "...\n";
-	std::cout << "Type '/exit' to leave the chat.\n";
+	std::cout << "Conected to room main as " << name << "...\n";
+	std::cout << "\n\nPRESS ENTER TO START MESSAGING\n\n";
 
 	std::thread recieveThread(receiveMessage, serverSocket);
 
@@ -168,12 +172,6 @@ int main(int arg, char** argv)
 		//std::cout << "\n[" + currentRoom + "] ";
 		std::getline(std::cin, input);
 
-		if (input == "/exit")
-		{
-			std::cout << "Exiting the chat..\n";
-			isRunning.store(false, std::memory_order_relaxed);
-			break;
-		}
 		if (input[0] == '/')
 		{
 			std::stringstream msgStream(input);
