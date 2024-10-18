@@ -171,6 +171,10 @@ int main(int arg, char** argv)
 
 			msgStream >> token;
 
+
+			//I know this is a VERY BAD WAY to do commands. They should be on server or client but definetly not on both.
+			//But we are learning this time and this is simple enough so it will work
+			
 			if (token == "/join")
 			{
 				msgStream >> token;
@@ -179,9 +183,17 @@ int main(int arg, char** argv)
 
 			if (token == "/switch")
 			{
-				std::cout << "switched";
+				
 				msgStream >> token;
 				currentRoom = token;
+				std::cout << "You switched your room to" + currentRoom;
+			}
+
+			if (token == "/leave")
+			{
+				//std::cout << "switched";
+				
+				currentRoom = "main";
 			}
 
 		}
