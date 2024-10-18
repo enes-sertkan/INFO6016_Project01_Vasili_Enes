@@ -379,8 +379,7 @@ int main(int arg, char** argv)
 								"/rooms - List available rooms\n"
 								"/join <room> - Create or join a room\n"
 								"/leave <room> - Leave the current room\n"
-								"/switch <room> - switch room you are writing to\n"
-								"/exit - Close the app\n";
+								"/switch <room> - switch room you are writing to\n";
 
 							SendMessageToSocket(helpMessage, socket);
 						}
