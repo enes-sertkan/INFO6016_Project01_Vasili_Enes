@@ -36,6 +36,9 @@ struct ChatMessage
 };
 
 std::atomic<bool> isRunning(true);
+std::string currentRoom = "main";
+std::string name;
+
 
 void receiveMessage(SOCKET socket)
 {
@@ -62,7 +65,7 @@ void receiveMessage(SOCKET socket)
 
 				printf("\33[2K\r");
 				std::cout <<"["<<room<<"] "<< userName<<":" << msg << "\n";
-				//std::cout << "[" << room << "] ";
+				std::cout << "[" << currentRoom << "] " + name+":";
 			}
 		}
 		else if (result == 0)
@@ -76,7 +79,7 @@ void receiveMessage(SOCKET socket)
 		}
 	}
 }
-std::string currentRoom = "main";
+
 int main(int arg, char** argv)
 {
 	// Initiliaze Winsock
@@ -127,7 +130,7 @@ int main(int arg, char** argv)
 
 
 	std::cout << "Enter your name: ";
-	std::string name;
+	
 	std::getline(std::cin, name);
 
 	// Connect
@@ -152,7 +155,7 @@ int main(int arg, char** argv)
 	while (isRunning)
 	{
 		std::string input;
-		std::cout << "\n[" + currentRoom + "] ";
+		//std::cout << "\n[" + currentRoom + "] ";
 		std::getline(std::cin, input);
 
 		if (input == "/exit")
@@ -209,7 +212,8 @@ int main(int arg, char** argv)
 
 			send(serverSocket, (const char*)(&buffer.m_BufferData[0]), message.header.packetSize, 0);
 			//std::cout << message.message << "\n";
-			std::cout << "\n[" + currentRoom + "] ";
+			printf("\33[2K\r");
+			std::cout << "[" << currentRoom << "] " + name + ":";
 		}
 
 
