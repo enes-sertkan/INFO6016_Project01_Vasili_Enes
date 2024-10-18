@@ -7,8 +7,12 @@ A simple Chat Application built with C++ using sockets.
 
 ## Getting Started
 
-1. **Enter your name**: When prompted, input your name and press **Enter**.
-2. You will automatically enter a room called **main**.
+1. **Build the Solution**: First, build the solution to compile the application.
+2. **Run the Server**: Start the server application. You can run it only once.
+3. **Run Multiple Clients**: Launch multiple client instances simultaneously. This allows you to simulate the same user joining different rooms.
+4. **Enter Your Name**: When prompted, input your name and press **Enter**.
+5. **Join the Main Room**: Upon entering your name, you will automatically be placed in a room called **main**.
+
 
 ## Available Commands
 
