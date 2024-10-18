@@ -70,6 +70,9 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(SolutionDir)vendor\ImGui\;$(SolutionDir)vendor\ImGui\backends;$(IncludePath)</IncludePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -108,6 +111,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>d3d12.lib;dxguid.lib;d3dcompiler.lib;d3d11.lib;opengl32.lib;
+glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -127,10 +132,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\vendor\ImGui\backends\imgui_impl_dx9.h" />
+    <ClInclude Include="..\vendor\ImGui\backends\imgui_impl_opengl2.h" />
+    <ClInclude Include="..\vendor\ImGui\backends\imgui_impl_opengl3.h" />
+    <ClInclude Include="..\vendor\ImGui\backends\imgui_impl_win32.h" />
+    <ClInclude Include="..\vendor\ImGui\imgui.h" />
     <ClInclude Include="buffer.h" />
+    <ClInclude Include="GUI.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\vendor\ImGui\backends\imgui_impl_dx9.cpp" />
+    <ClCompile Include="..\vendor\ImGui\backends\imgui_impl_opengl2.cpp" />
+    <ClCompile Include="..\vendor\ImGui\backends\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="..\vendor\ImGui\backends\imgui_impl_win32.cpp" />
+    <ClCompile Include="..\vendor\ImGui\imgui.cpp" />
+    <ClCompile Include="..\vendor\ImGui\imgui_draw.cpp" />
+    <ClCompile Include="..\vendor\ImGui\imgui_tables.cpp" />
+    <ClCompile Include="..\vendor\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="chat_server_main.cpp" />
+    <ClCompile Include="GUI.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

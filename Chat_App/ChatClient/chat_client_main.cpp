@@ -110,6 +110,8 @@ int main(int arg, char** argv)
 
 	printf("getaddrinfo was successful!\n");
 
+
+
 	// Create the server socket
 	SOCKET serverSocket = socket(info->ai_family, info->ai_socktype, info->ai_protocol);
 	if (serverSocket == INVALID_SOCKET)
