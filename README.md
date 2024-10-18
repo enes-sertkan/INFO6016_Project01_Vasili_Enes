@@ -21,6 +21,8 @@ Use the following commands to interact with the chat application:
 
 - `/leave` - Leave the room you are currently in.
 
+- `/switch <room name>` - switch to another room.
+
 - `/rooms` - View a list of available rooms.
 
 ## Notes
