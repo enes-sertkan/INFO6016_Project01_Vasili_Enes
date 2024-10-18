@@ -28,6 +28,7 @@ struct User
 	std::string name;
 	unsigned int ID;
 
+
 };
 
 
@@ -127,6 +128,32 @@ User* GetUserBySocket(SOCKET socket)
 	return nullptr;
 
 
+}
+
+void leaveRoom(std::string roomName, SOCKET socket, User* user) 
+{
+
+
+	//check if the room exist
+	std::map<std::string, Room*>::iterator roomIt = roomMap.find(roomName);
+	if (roomIt == roomMap.end())
+	{
+		SendMessageToSocket("Room not found: " + roomName, socket);
+		return;
+	}
+
+	Room* room = roomIt->second;
+
+	std::vector<User*>::iterator userIt = std::find(room->users.begin(), room->users.end(), user);
+	if (userIt == room->users.end())
+	{
+		SendMessageToSocket("You are not in the room: " + roomName, socket);
+		return;
+	}
+
+	room->users.erase(userIt);
+	std::string leaveMsg = "You left the room: " + room->name;
+	SendMessageToSocket(leaveMsg, socket);
 }
 
 int main(int arg, char** argv)
@@ -341,26 +368,45 @@ int main(int arg, char** argv)
 
 						}
 
-						if (token == "/quit")
+						if (token == "/leave")
 						{
-							//remove User* from users in Room* in roommap<std::string, Room*>
 
+							msgStream >> token;
+							std::string roomName = token;
+							leaveRoom(roomName, socket, users[i]);
 						}
+
 
 						if (token == "/rooms")
 						{
-							//Send a list of rooms, like:
-							//FUN
-							//room2
-							//helpmeStudyRoom
+							std::string roomList = "Available rooms:\n";
+
+							for (const auto& roomEntry : roomMap)
+							{
+								roomList += roomEntry.first + "\n";
+							}
+
+							if (roomMap.empty()) {
+								roomList += "No rooms available.\n";
+							}
+
+							SendMessageToSocket(roomList, socket);
 						}
+
 
 						if (token == "/help")
 						{
+							std::string helpMessage =
+								"Available commands:\n"
+								"/rooms - List available rooms\n"
+								"/join <room> - Create or join a room\n"
+								"/leave - Leave the current room\n"
+								"/send <room> <message> - Send a message to a room\n"
+								"/exit - Close the app\n";
 
-							SendMessageToSocket("Write /roooms to roooms", socket);
-							//LIST OF COMMANDS like this and like /rooms
+							SendMessageToSocket(helpMessage, socket);
 						}
+
 
 
 					}
@@ -368,9 +414,29 @@ int main(int arg, char** argv)
 
 					
 					std::vector<User*> roomUsers;
-					if (room == "main") roomUsers = users;
-						else roomUsers= GetAllUsersInRoom(room);
+					bool userInRoom = false;
 
+					if (room == "main") roomUsers = users;
+					else 
+					{
+						roomUsers = GetAllUsersInRoom(room);
+
+					}
+
+					for (int j = 0; j < roomUsers.size(); j++)
+					{
+						if (roomUsers[j] == users[i])
+						{
+								userInRoom = true;
+								break;
+						}
+					}
+					
+					if (!userInRoom)
+					{
+						SendMessageToSocket("You are writing to a room you are not in.", socket);
+					}
+					else
 					for (int j = 0; j < roomUsers.size(); j++)
 					{
 						SOCKET outSocket = roomUsers[j]->socket;
