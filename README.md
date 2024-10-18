@@ -13,6 +13,7 @@ A simple Chat Application built with C++ using sockets.
 4. **Enter Your Name**: When prompted, input your name and press **Enter**.
 5. **Join the Main Room**: Upon entering your name, you will automatically be placed in a room called **main**.
 
+You can connect to multiple rooms at once and receive messages from all of them simultaneously. When sending a message, it will only be sent to the room you have currently selected (indicated by the room name at the start of the message).
 
 ## Available Commands
 
@@ -21,11 +22,11 @@ Use the following commands to interact with the chat application:
 - `/help` - Display a list of available commands.
   
 - `/join <room name>` - Join an existing room or create a new one.  
-  **Example**:  
+  **Example**: `/join room1`
 
 - `/leave` - Leave the room you are currently in.
 
-- `/switch <room name>` - switch to another room.
+- `/switch <room name>` - Switch to another room.
 
 - `/rooms` - View a list of available rooms.
 
